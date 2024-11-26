@@ -4,7 +4,7 @@ import { DatabaseService } from 'src/database/database.service';
 
 @Injectable()
 export class ProductService {
-  constructor(private readonly databaseService: DatabaseService) {}
+  constructor(private readonly databaseService: DatabaseService) { }
 
   async create(createProductDto: Prisma.ProductCreateInput) {
     const lastProduct = await this.databaseService.product.findFirst({
@@ -18,7 +18,7 @@ export class ProductService {
       },
     });
   }
-  
+
 
   async findAll() {
     const products = await this.databaseService.product.findMany({
@@ -28,7 +28,7 @@ export class ProductService {
     });
     return products;
   }
-  
+
 
   async findOne(id: number) {
     const product = await this.databaseService.product.findUnique({
@@ -56,7 +56,7 @@ export class ProductService {
       throw error;
     }
   }
-  
+
 
   async remove(id: number) {
     const product = await this.databaseService.product.findUnique({ where: { id } });
@@ -65,4 +65,33 @@ export class ProductService {
     }
     return this.databaseService.product.delete({ where: { id } });
   }
+
+  async search(query: string) {
+    // แปลง query เป็นตัวเลข (ถ้าเป็นตัวเลข)
+    const queryAsNumber = parseInt(query, 10);
+  
+    return this.databaseService.product.findMany({
+      where: {
+        OR: [
+          {
+            name: {
+              contains: query, // ค้นหาในชื่อ
+              mode: 'insensitive',
+            },
+          },
+          {
+            rfid: !isNaN(queryAsNumber) ? queryAsNumber : undefined, // ค้นหาใน RFID
+          },
+          {
+            id: !isNaN(queryAsNumber) ? queryAsNumber : undefined, // ค้นหาใน ID
+          },
+        ],
+      },
+    });
+  }
+  
 }
+
+
+
+
