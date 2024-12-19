@@ -28,6 +28,7 @@ model User {
   password  String
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt @default(now())
+  role          Role        @default(USER)
   
   logs      Log[]    @relation("UserLogs")
 }
@@ -39,4 +40,36 @@ model Log {
   ipAddress String
   userId    Int
   user      User     @relation(fields: [userId], references: [id], name: "UserLogs")
+}
+
+model AdminLog {
+  id          Int      @id @default(autoincrement())
+  timeStamp   DateTime @default(now())
+  method      Method
+  path        String?
+  transaction String?
+  createBy    Int
+  role        Role
+  action      Action
+}
+
+enum Role {
+  ADMIN
+  STAFF
+  USER
+}
+
+enum Action {
+  CREATE
+  UPDATE
+  DELETE
+  //SIGN_IN
+  //SIGN_UP
+}
+
+enum Method {
+  GET
+  POST
+  PATCH
+  DELETE
 }
